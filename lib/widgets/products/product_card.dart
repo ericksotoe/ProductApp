@@ -29,29 +29,27 @@ class ProductCard extends StatelessWidget {
   }
 
   Widget _buildActionButtons(BuildContext context) {
-    return ButtonBar(
-      alignment: MainAxisAlignment.center,
-      children: <Widget>[
+    return ScopedModelDescendant<MainModel>(
+        builder: (BuildContext context, Widget child, MainModel model) {
+      return ButtonBar(alignment: MainAxisAlignment.center, children: <Widget>[
         IconButton(
           onPressed: () => Navigator.pushNamed<bool>(
-              context, '/product/' + productIndex.toString()),
+              context, '/product/' + model.allProducts[productIndex].id),
           icon: Icon(Icons.info),
           color: Theme.of(context).primaryColor,
         ),
-        ScopedModelDescendant<MainModel>(
-          builder: (BuildContext context, Widget child, MainModel model) {
-            return IconButton(
-              onPressed: () {
-                model.selectProduct(productIndex);
-                model.toggleProductFavoriteStatus();
-              },
-              icon: Icon(model.allProducts[productIndex].isFavorite ? Icons.favorite : Icons.favorite_border),
-              color: Colors.red,
-            );
+        IconButton(
+          onPressed: () {
+            model.selectProduct(model.allProducts[productIndex].id);
+            model.toggleProductFavoriteStatus();
           },
-        )
-      ],
-    );
+          icon: Icon(model.allProducts[productIndex].isFavorite
+              ? Icons.favorite
+              : Icons.favorite_border),
+          color: Colors.red,
+        ),
+      ]);
+    });
   }
 
   @override
@@ -59,7 +57,12 @@ class ProductCard extends StatelessWidget {
     return Card(
       child: Column(
         children: <Widget>[
-          Image.network(product.image),
+          FadeInImage(
+            image: NetworkImage(product.image),
+            height: 300.0,
+            fit: BoxFit.cover,
+            placeholder: AssetImage('assets/food.jpg'),
+          ),
           _buildTitlePriceRow(),
           AdressTag('Union Sqauare, San Francisco'),
           Text(product.userEmail),

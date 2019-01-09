@@ -54,10 +54,7 @@ class _ProductsPageState extends State<ProductsPage> {
       } else if (model.isLoading) {
         content = Center(child: CircularProgressIndicator());
       }
-      return RefreshIndicator(child: content, onRefresh: () {
-        model.fetchProducts();
-      });
-
+      return RefreshIndicator(child: content, onRefresh: model.fetchProducts);
     });
   }
 
