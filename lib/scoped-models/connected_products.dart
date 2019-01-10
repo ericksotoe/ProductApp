@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:scoped_model/scoped_model.dart';
 
+import '../models/auth.dart';
 import '../models/product.dart';
 import '../models/user.dart';
 
@@ -11,8 +12,6 @@ mixin ConnectedProductsModel on Model {
   String _selProductId;
   User _authenticatedUser;
   bool _isLoading = false;
-
-
 }
 
 mixin ProductsModel on ConnectedProductsModel {
@@ -52,7 +51,7 @@ mixin ProductsModel on ConnectedProductsModel {
     return _showFavorites;
   }
 
-  Future<bool> addProduct (
+  Future<bool> addProduct(
       String title, String description, String image, double price) async {
     _isLoading = true;
     notifyListeners();
@@ -60,18 +59,18 @@ mixin ProductsModel on ConnectedProductsModel {
       'title': title,
       'description': description,
       'image':
-      'https://image.shutterstock.com/image-photo/milk-chocolate-pieces-isolated-on-260nw-728366752.jpg',
+          'https://image.shutterstock.com/image-photo/milk-chocolate-pieces-isolated-on-260nw-728366752.jpg',
       'price': price,
       'userEmail': _authenticatedUser.email,
       'userId': _authenticatedUser.id
     };
 
     try {
-      final http.Response response = await http
-          .post('https://flutter-products-836af.firebaseio.com/products.json',
+      final http.Response response = await http.post(
+          'https://flutter-products-836af.firebaseio.com/products.json',
           body: json.encode(productData));
 
-      if ( response.statusCode != 200 && response.statusCode != 201 ) {
+      if (response.statusCode != 200 && response.statusCode != 201) {
         _isLoading = false;
         notifyListeners();
         return false;
@@ -224,12 +223,45 @@ mixin ProductsModel on ConnectedProductsModel {
 }
 
 mixin UserModel on ConnectedProductsModel {
-  void login(String email, String password) {
-    _authenticatedUser = User(
-      id: 'abcdefg',
-      email: email,
-      password: password,
-    );
+  Future<Map<String, dynamic>> authenticate(String email, String password,
+      [AuthMode mode = AuthMode.Login]) async {
+    _isLoading = true;
+    notifyListeners();
+    final Map<String, dynamic> authData = {
+      'email': email,
+      'password': password,
+      'returnSecureToken': true
+    };
+
+    http.Response response;
+    if (mode == AuthMode.Login) {
+      response = await http.post(
+          'https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=AIzaSyAEYqMZ9KaA2IzFhHWtEN7pnVFjEBRd2Nc',
+          body: json.encode(authData),
+          headers: {'Content-Type': 'application/json'});
+    } else {
+      response = await http.post(
+          'https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=AIzaSyAEYqMZ9KaA2IzFhHWtEN7pnVFjEBRd2Nc',
+          body: json.encode(authData),
+          headers: {'Content-Type': 'application/json'});
+    }
+
+    final Map<String, dynamic> responseData = json.decode(response.body);
+    bool hasError = true;
+    String message = 'Something went wrong';
+    if (responseData.containsKey('idToken')) {
+      hasError = false;
+      message = 'Authentication succeeded!';
+    } else if (responseData['error']['message'] == 'EMAIL_EXISTS') {
+      message = 'This email already exists';
+    } else if (responseData['error']['message'] == 'EMAIL_NOT_FOUND') {
+      message = 'This email was not found';
+    } else if (responseData['error']['message'] == 'INVALID_PASSWORD') {
+      message = 'The password is invalid';
+    }
+    _isLoading = false;
+    notifyListeners();
+    return {'success': !hasError, 'message': message};
   }
 }
 
