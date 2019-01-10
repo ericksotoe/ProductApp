@@ -4,7 +4,6 @@ import 'package:scoped_model/scoped_model.dart';
 import '../scoped-models/main.dart';
 import '../models/auth.dart';
 
-enum AuthMode { Signup, Login }
 
 class AuthPage extends StatefulWidget {
   @override

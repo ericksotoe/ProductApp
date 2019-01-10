@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_course/models/product.dart';
 import 'package:flutter_course/scoped-models/main.dart';
-
 import 'package:scoped_model/scoped_model.dart';
 
 import 'pages/auth.dart';
@@ -25,31 +24,39 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  final MainModel _model = MainModel();
 
+  @override
+  void initState() {
+    _model.autoAuthenticate();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     final Color mainAccentColor = Color.fromRGBO(8, 37, 103, 0.9);
-    final MainModel model = MainModel();
 
-    return  ScopedModel<MainModel>(
-      model: model,
+    return ScopedModel<MainModel>(
+      model: _model,
       child: MaterialApp(
 //      debugShowMaterialGrid: true,
         theme: ThemeData(
-            brightness: Brightness.light,
-            primarySwatch: Colors.deepPurple,
-            accentColor: mainAccentColor,
-            buttonColor: mainAccentColor,
+          brightness: Brightness.light,
+          primarySwatch: Colors.deepPurple,
+          accentColor: mainAccentColor,
+          buttonColor: mainAccentColor,
 
 //        fontFamily: 'Oswald'
-            ),
+        ),
 //      home: AuthPage(),
         routes: {
-          '/': (BuildContext context) => AuthPage(),
-          '/products': (BuildContext context) => ProductsPage(model),
-          '/admin': (BuildContext context) =>
-              ProductsAdminPage(model),
+          '/': (BuildContext context) => ScopedModelDescendant<MainModel>(
+                builder: (BuildContext context, Widget child, MainModel model) {
+                  return model.user == null ? AuthPage() : ProductsPage(_model);
+                },
+              ),
+          '/products': (BuildContext context) => ProductsPage(_model),
+          '/admin': (BuildContext context) => ProductsAdminPage(_model),
         },
         onGenerateRoute: (RouteSettings settings) {
           final List<String> pathElements = settings.name.split('/');
@@ -58,7 +65,8 @@ class _MyAppState extends State<MyApp> {
           }
           if (pathElements[1] == 'product') {
             final String productId = pathElements[2];
-            final Product product = model.allProducts.firstWhere((Product product) {
+            final Product product =
+                _model.allProducts.firstWhere((Product product) {
               return product.id == productId;
             });
             return MaterialPageRoute<bool>(
@@ -70,7 +78,7 @@ class _MyAppState extends State<MyApp> {
         // this runs if we cant id the named route
         onUnknownRoute: (RouteSettings settings) {
           return MaterialPageRoute(
-              builder: (BuildContext context) => ProductsPage(model));
+              builder: (BuildContext context) => ProductsPage(_model));
         },
       ),
     );
