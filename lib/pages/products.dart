@@ -3,6 +3,7 @@ import 'package:scoped_model/scoped_model.dart';
 
 import '../scoped-models/main.dart';
 import '../widgets/products/products.dart';
+import '../widgets/ui_elements/logout_list_tile.dart';
 
 class ProductsPage extends StatefulWidget {
   final MainModel model;
@@ -40,14 +41,16 @@ class _ProductsPageState extends State<ProductsPage> {
             onTap: () {
               Navigator.pushReplacementNamed(context, '/admin');
             },
-          )
+          ),
+          Divider(),
+          LogoutListTile(),
         ],
       ),
     );
   }
 
   Widget _buildProductsList() {
-    return ScopedModelDescendant<MainModel>(builder: (context, child, model) {
+    return ScopedModelDescendant<MainModel>(builder: (BuildContext context, Widget child, MainModel model) {
       Widget content = Center(child: Text("No Products Found"));
       if ( model.displayedProducts.length > 0 && !model.isLoading) {
         content = Products();
