@@ -147,6 +147,8 @@ class _LocationInputState extends State<LocationInput> {
           height: 10.0,
         ),
         FlatButton(
+          color: Theme.of(context).buttonColor,
+          textColor: Colors.white,
           child: Text("My Location"),
           onPressed: _getUserLocation,
         ),
