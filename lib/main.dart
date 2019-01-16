@@ -8,6 +8,7 @@ import 'pages/auth.dart';
 import 'pages/product.dart';
 import 'pages/products.dart';
 import 'pages/products_admin.dart';
+import 'widgets/helpers/custom_route.dart';
 //import 'package:flutter/rendering.dart';
 
 void main() {
@@ -65,7 +66,7 @@ class _MyAppState extends State<MyApp> {
         },
         onGenerateRoute: (RouteSettings settings) {
           if (!_isAuthenticated) {
-            return MaterialPageRoute<bool>(
+            return CustomRoute<bool>(
               builder: (BuildContext context) => AuthPage(),
             );
           }

@@ -33,8 +33,11 @@ class ProductCard extends StatelessWidget {
         builder: (BuildContext context, Widget child, MainModel model) {
       return ButtonBar(alignment: MainAxisAlignment.center, children: <Widget>[
         IconButton(
-          onPressed: () => Navigator.pushNamed<bool>(
-              context, '/product/' + model.allProducts[productIndex].id),
+          onPressed: () {
+            model.selectProduct(model.allProducts[productIndex].id);
+            Navigator.pushNamed<bool>(
+                context, '/product/' + model.allProducts[productIndex].id).then((_) => model.selectProduct(null));
+          },
           icon: Icon(Icons.info),
           color: Theme.of(context).primaryColor,
         ),
@@ -43,9 +46,8 @@ class ProductCard extends StatelessWidget {
             model.selectProduct(model.allProducts[productIndex].id);
             model.toggleProductFavoriteStatus();
           },
-          icon: Icon(product.isFavorite
-              ? Icons.favorite
-              : Icons.favorite_border),
+          icon:
+              Icon(product.isFavorite ? Icons.favorite : Icons.favorite_border),
           color: Colors.red,
         ),
       ]);
@@ -57,15 +59,17 @@ class ProductCard extends StatelessWidget {
     return Card(
       child: Column(
         children: <Widget>[
-          FadeInImage(
-            image: NetworkImage(product.image),
-            height: 300.0,
-            fit: BoxFit.cover,
-            placeholder: AssetImage('assets/food.jpg'),
+          Hero(
+            tag: product.id,
+            child: FadeInImage(
+              image: NetworkImage(product.image),
+              height: 300.0,
+              fit: BoxFit.cover,
+              placeholder: AssetImage('assets/food.jpg'),
+            ),
           ),
           _buildTitlePriceRow(),
           AdressTag(product.location.address),
-          Text(product.userEmail),
           _buildActionButtons(context)
         ],
       ),
