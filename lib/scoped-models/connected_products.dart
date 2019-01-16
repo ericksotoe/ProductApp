@@ -268,44 +268,48 @@ mixin ProductsModel on ConnectedProductsModel {
     });
   }
 
-  void toggleProductFavoriteStatus() async {
-    final bool isCurrentlyFavorite = selectedProduct.isFavorite;
+  void toggleProductFavoriteStatus(Product toggledProduct) async {
+    final bool isCurrentlyFavorite = toggledProduct.isFavorite;
     final bool newFavoriteStatus = !isCurrentlyFavorite;
+    // NEWLY ADDED => Get the index of the product passed into the method
+    final int toggledProductIndex = _products.indexWhere((Product product) {
+      return product.id == toggledProduct.id;
+    });
     final Product updatedProduct = Product(
-        id: selectedProduct.id,
-        title: selectedProduct.title,
-        description: selectedProduct.description,
-        price: selectedProduct.price,
-        location: selectedProduct.location,
-        image: selectedProduct.image,
-        imagePath: selectedProduct.imagePath,
+        id: toggledProduct.id,
+        title: toggledProduct.title,
+        description: toggledProduct.description,
+        price: toggledProduct.price,
+        location: toggledProduct.location,
+        image: toggledProduct.image,
+        imagePath: toggledProduct.imagePath,
         isFavorite: newFavoriteStatus,
-        userId: selectedProduct.userId,
-        userEmail: selectedProduct.userEmail);
-    _products[selectedProductIndex] = updatedProduct;
+        userId: toggledProduct.userId,
+        userEmail: toggledProduct.userEmail);
+    _products[toggledProductIndex] = updatedProduct;
     notifyListeners();
     http.Response response;
     if (newFavoriteStatus) {
       response = await http.put(
-          'https://flutter-products-836af.firebaseio.com/products/${selectedProduct.id}/favListUsers/${_authenticatedUser.id}.json?auth=${_authenticatedUser.token}',
+          'https://flutter-products-836af.firebaseio.com/products/${toggledProduct.id}/favListUsers/${_authenticatedUser.id}.json?auth=${_authenticatedUser.token}',
           body: json.encode(true));
     } else {
       response = await http.delete(
-          'https://flutter-products-836af.firebaseio.com/products/${selectedProduct.id}/favListUsers/${_authenticatedUser.id}.json?auth=${_authenticatedUser.token}');
+          'https://flutter-products-836af.firebaseio.com/products/${toggledProduct.id}/favListUsers/${_authenticatedUser.id}.json?auth=${_authenticatedUser.token}');
     }
     if (response.statusCode != 200 && response.statusCode != 201) {
       final Product updatedProduct = Product(
-          id: selectedProduct.id,
-          title: selectedProduct.title,
-          description: selectedProduct.description,
-          price: selectedProduct.price,
-          location: selectedProduct.location,
-          image: selectedProduct.image,
-          imagePath: selectedProduct.imagePath,
+          id: toggledProduct.id,
+          title: toggledProduct.title,
+          description: toggledProduct.description,
+          price: toggledProduct.price,
+          location: toggledProduct.location,
+          image: toggledProduct.image,
+          imagePath: toggledProduct.imagePath,
           isFavorite: !newFavoriteStatus,
-          userId: selectedProduct.userId,
-          userEmail: selectedProduct.userEmail);
-      _products[selectedProductIndex] = updatedProduct;
+          userId: toggledProduct.userId,
+          userEmail: toggledProduct.userEmail);
+      _products[toggledProductIndex] = updatedProduct;
       notifyListeners();
     }
   }
@@ -424,6 +428,7 @@ mixin UserModel on ConnectedProductsModel {
     _authenticatedUser = null;
     _authTimer.cancel();
     _userSubject.add(false);
+    _selProductId = null;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.remove('token');
     prefs.remove('userEmail');

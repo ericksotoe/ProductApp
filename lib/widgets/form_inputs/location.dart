@@ -76,16 +76,16 @@ class _LocationInputState extends State<LocationInput> {
 
     if (mounted) {
       final StaticMapProvider staticMapProvider =
-        StaticMapProvider("AIzaSyAzC5Sezq8dGFBW4F-8dveH6xuQFy1f-10");
-    final Uri staticMapUri = staticMapProvider.getStaticUriWithMarkers([
-      Marker('position', 'Position', _locationData.latitude,
-          _locationData.longitude)
-    ],
-        center: Location(_locationData.latitude, _locationData.longitude),
-        width: 500,
-        height: 300,
-        maptype: StaticMapViewType.roadmap);
-    widget.setLocation(_locationData);
+          StaticMapProvider("AIzaSyAzC5Sezq8dGFBW4F-8dveH6xuQFy1f-10");
+      final Uri staticMapUri = staticMapProvider.getStaticUriWithMarkers([
+        Marker('position', 'Position', _locationData.latitude,
+            _locationData.longitude)
+      ],
+          center: Location(_locationData.latitude, _locationData.longitude),
+          width: 500,
+          height: 300,
+          maptype: StaticMapViewType.roadmap);
+      widget.setLocation(_locationData);
       setState(() {
         _addressInputController.text = _locationData.address;
 
@@ -111,13 +111,33 @@ class _LocationInputState extends State<LocationInput> {
 
   void _getUserLocation() async {
     final geoLoc.Location location = geoLoc.Location();
-    final currentLocation = await location.getLocation();
-    final address = await _getAddress(
-        currentLocation['latitude'], currentLocation['longitude']);
-    _getStaticMap(address,
-        geocode: false,
-        lat: currentLocation['latitude'],
-        lng: currentLocation['longitude']);
+
+    try {
+      final currentLocation = await location.getLocation();
+      final address = await _getAddress(
+          currentLocation['latitude'], currentLocation['longitude']);
+      _getStaticMap(address,
+          geocode: false,
+          lat: currentLocation['latitude'],
+          lng: currentLocation['longitude']);
+    } catch (error) {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Could not fetch Location"),
+              content: Text("Please add an address manually"),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text("Okay"),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                )
+              ],
+            );
+          });
+    }
   }
 
   void _updateLocation() {
