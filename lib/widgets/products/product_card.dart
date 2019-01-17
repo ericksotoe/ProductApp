@@ -12,18 +12,22 @@ class ProductCard extends StatelessWidget {
 
   ProductCard(this.product);
 
-  Widget _buildTitlePriceRow() {
+  Widget _buildTitleRow() {
     return Container(
-        margin: EdgeInsets.only(top: 10.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Flexible(child: TitleDefault(product.title)),
-            Flexible(
-              child: SizedBox(
-                width: 9.0,
-              ),
-            ),
+            Expanded(child: TitleDefault(product.title),),
+          ],
+        ));
+  }
+
+  Widget _buildPriceRow() {
+    return Container(
+        margin: EdgeInsets.only(bottom: 10.0, top: 5.0, ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
             Flexible(child: PriceTag(product.price.toString()))
           ],
         ));
@@ -70,7 +74,8 @@ class ProductCard extends StatelessWidget {
               placeholder: AssetImage('assets/food.jpg'),
             ),
           ),
-          _buildTitlePriceRow(),
+          _buildTitleRow(),
+          _buildPriceRow(),
           AdressTag(product.location.address),
           _buildActionButtons(context)
         ],

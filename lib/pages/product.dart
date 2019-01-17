@@ -43,24 +43,13 @@ class ProductPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        GestureDetector(
-          onTap: _showMap,
-          child: Text(
-            address,
-            style: TextStyle(fontFamily: 'Oswald', color: Colors.grey),
+        IconButton(onPressed: _showMap, icon: Icon(Icons.map, color: Colors.deepPurpleAccent,),),
+          Flexible(
+            child: Text(
+              address + ' | ' +  '\$' + price.toString(),
+              style: TextStyle(fontFamily: 'Oswald', color: Colors.grey,),
+            ),
           ),
-        ),
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 5.0),
-          child: Text(
-            '|',
-            style: TextStyle(color: Colors.grey),
-          ),
-        ),
-        Text(
-          '\$' + price.toString(),
-          style: TextStyle(fontFamily: 'Oswald', color: Colors.grey),
-        )
       ],
     );
   }
