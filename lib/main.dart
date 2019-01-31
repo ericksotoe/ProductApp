@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_course/models/product.dart';
 import 'package:flutter_course/scoped-models/main.dart';
 import 'package:map_view/map_view.dart';
 import 'package:scoped_model/scoped_model.dart';
+import 'shared/adaptive_theme.dart';
+import 'dart:async';
 
 import 'pages/auth.dart';
 import 'pages/product.dart';
@@ -28,7 +31,19 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final MainModel _model = MainModel();
+//  final _platformChannel = MethodChannel('oksoto.com/battery');
   bool _isAuthenticated = false;
+
+//  Future<Null> _getBatteryLevel() async {
+//    String batteryLevel;
+//    try {
+//      final int result = await _platformChannel.invokeMethod('getBatteryLevel');
+//      batteryLevel = "Battery level is $result %.";
+//    } catch (error) {
+//      batteryLevel = "Failed to get Battery level";
+//    }
+//    print(batteryLevel);
+//  }
 
   @override
   void initState() {
@@ -43,20 +58,12 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    final Color mainAccentColor = Color.fromRGBO(8, 37, 103, 0.9);
 
     return ScopedModel<MainModel>(
       model: _model,
       child: MaterialApp(
 //      debugShowMaterialGrid: true,
-        theme: ThemeData(
-          brightness: Brightness.light,
-          primarySwatch: Colors.deepPurple,
-          accentColor: mainAccentColor,
-          buttonColor: mainAccentColor,
-
-//        fontFamily: 'Oswald'
-        ),
+        theme: getAdaptiveThemeData(context),
 //      home: AuthPage(),
         routes: {
           '/': (BuildContext context) =>
